@@ -19,25 +19,26 @@ jobs:
       - name: Install Arduino CLI
         uses: arduino/setup-arduino-cli@v2
 
-      - name: Install Infineon board package (PSoC6)
+      - name: Configure Boards Manager URL (Infineon PSoC6) and install core
         run: |
+          arduino-cli config init --overwrite
+          arduino-cli config set board_manager.additional_urls \
+            "https://github.com/Infineon/arduino-core-psoc6/releases/latest/download/package_psoc6_index.json"
           arduino-cli core update-index
-          # If Infineon requires an additional Boards Manager URL, add it here:
-          # arduino-cli config init
-          # arduino-cli config set board_manager.additional_urls "<URL>"
-          # arduino-cli core update-index
           arduino-cli core install infineon:psoc6
 
+      - name: Install libraries (NeoPixel + XENSIV BGT60)
+        run: |
+          arduino-cli lib update-index
+          arduino-cli lib install "Adafruit NeoPixel"
+          arduino-cli lib install "Xensiv BGT60"
+          
       - name: Compile sketch
         run: |
-          # Set this to the folder containing your .ino (repo root shown here)
+          # Folder that contains your .ino:
           SKETCH_DIR="."
-          # Common FQBN for CY8CKIT-062S-AI (adjust if your core uses a different id)
+
+          # If this FQBN doesn't match your installed core, see the note below.
           FQBN="infineon:psoc6:cy8ckit_062s2_ai"
 
           arduino-cli compile --fqbn "$FQBN" "$SKETCH_DIR"
-          
-          libraries: |
-            Adafruit_NeoPixel
-            arduino-xensiv-radar-sensor-bgt60tr13
-
