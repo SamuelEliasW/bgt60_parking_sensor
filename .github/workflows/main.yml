@@ -31,7 +31,7 @@ jobs:
         run: |
           arduino-cli lib update-index
           arduino-cli lib install "Adafruit NeoPixel"
-          arduino-cli lib install "Xensiv BGT60"
+          arduino-cli lib install "XENSIV BGT60TR13C Radar Sensor"
           
       - name: Compile sketch
         run: |
