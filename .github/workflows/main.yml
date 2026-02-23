@@ -1,18 +1,43 @@
-name: Compile examples
+name: Compile sketch (PSoC6)
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-    tags:
-      - '*'
+    branches: [ main ]
+    tags: [ "*" ]
   pull_request:
-    branches:
-      - '*'
   schedule:
-    - cron: '30 3 * * 5' # Run every Friday at 3:30 AM UTC
-    
+    - cron: "30 3 * * 5" # every Friday 03:30 UTC
+
 jobs:
-  arduino-devops:
-    uses: Infineon/arduino-devops/.github/workflows/compile-examples.yml@latest
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Install Infineon board package (PSoC6)
+        run: |
+          arduino-cli core update-index
+          # If Infineon requires an additional Boards Manager URL, add it here:
+          # arduino-cli config init
+          # arduino-cli config set board_manager.additional_urls "<URL>"
+          # arduino-cli core update-index
+          arduino-cli core install infineon:psoc6
+
+      - name: Compile sketch
+        run: |
+          # Set this to the folder containing your .ino (repo root shown here)
+          SKETCH_DIR="."
+          # Common FQBN for CY8CKIT-062S-AI (adjust if your core uses a different id)
+          FQBN="infineon:psoc6:cy8ckit_062s2_ai"
+
+          arduino-cli compile --fqbn "$FQBN" "$SKETCH_DIR"
+          
+          libraries: |
+            Adafruit_NeoPixel
+            arduino-xensiv-radar-sensor-bgt60tr13
+
